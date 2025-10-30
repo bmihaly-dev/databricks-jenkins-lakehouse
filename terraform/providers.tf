@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 5.40"
     }
+    databricks = {
+      source  = "databricks/databricks"
+      version = "~> 1.60"
+    }
   }
 }
 provider "aws" {

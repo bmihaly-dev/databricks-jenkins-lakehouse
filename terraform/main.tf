@@ -46,3 +46,9 @@ module "glue_catalog" {
   glue_role_arn = module.iam_glue.role_arn
   tags          = local.common_tags
 }
+
+module "unity_catalog_uc" {
+  source         = "./modules/unity_catalog_uc"
+  role_arn       = "arn:aws:iam::154744860201:role/lakehouse-dev-databricks-data-role"
+  credential_name = "sc-lakehouse-dev"
+}

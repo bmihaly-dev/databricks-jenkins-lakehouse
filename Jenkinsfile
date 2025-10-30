@@ -7,7 +7,7 @@ pipeline {
     TF_IN_AUTOMATION  = 'true'
     TF_INPUT          = 'false'
 
-    // Add meg Jenkinsben (env vagy credentials szerinted):
+    
     TF_BACKEND_BUCKET = 'tf-state-...'
     TF_BACKEND_KEY    = 'lakehouse/terraform.tfstate'
     TF_LOCK_TABLE     = 'tf-lock-...'

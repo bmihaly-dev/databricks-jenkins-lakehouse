@@ -1,12 +1,16 @@
-# Databricks–Jenkins Lakehouse Project
-AWS-based Lakehouse infrastructure using modular Terraform.  
-Databricks part is COMPLETE; Jenkins CI/CD pipeline is IN PROGRESS.
+<h1 align="center">🚀 Databricks–Jenkins Lakehouse Project</h1>
+<p align="center">Modern AWS Lakehouse Infrastructure • Modular Terraform • Jenkins CI/CD Pipeline (WIP)</p>
+<p align="center">Databricks: ✅ Complete • Jenkins: 🟡 In Progress</p>
 
-## Overview
-This project provides a modular Terraform setup to build an AWS Lakehouse architecture.  
-It includes S3 bronze/silver/gold layers, Glue Catalog, IAM roles, and a Jenkins pipeline (in progress).
+---
 
-## Architecture
+## 🔧 Overview
+This project implements a modern AWS-based Lakehouse architecture using modular Terraform.  
+It includes S3 bronze/silver/gold layers, AWS Glue Catalog, IAM roles, and a Jenkins CI/CD pipeline (currently in progress).
+
+---
+
+## 🏗 Architecture
 Terraform → S3 backend → DynamoDB lock  
 ↓  
 AWS S3 (bronze / silver / gold)  
@@ -19,7 +23,9 @@ Databricks Workspace (Community Edition)
 ↓  
 Jenkins CI/CD Pipeline (IN PROGRESS)
 
-## Repository Structure
+---
+
+## 📁 Repository Structure
 databricks-jenkins-lakehouse/  
  ├── terraform-bootstrap/  
  │   ├── main.tf  
@@ -39,74 +45,86 @@ databricks-jenkins-lakehouse/
  │   └── docker-compose.yml  
  └── README.md
 
-## AWS Components
+---
 
-### S3 Data Lake
+## ☁️ AWS Components
+
+### 🪣 S3 Data Lake
 - Bronze / Silver / Gold buckets  
-- Default SSE encryption   
+- SSE encryption enabled  
 - Fully Terraform-managed  
 
-### Glue Catalog
-- Separate database per layer  
+### 🧩 AWS Glue Catalog
+- One database per layer  
 - One crawler per layer  
-- IAM Role: lakehouse-dev-glue-crawler-role-access  
-- Fully automated creation  
+- IAM Role: `lakehouse-dev-glue-crawler-role-access`  
+- Automated via Terraform  
 
-### IAM Roles
+### 🔐 IAM Roles
 - Glue crawler IAM role  
-- Databricks workspace IAM role (CE-compatible, no UC)  
+- Databricks workspace IAM role (no Unity Catalog)  
 - Raw JSON assume-role  
-- Least privilege permissions  
+- Least privilege  
 
-## Databricks (Community Edition)
+---
+
+## 🧠 Databricks (Community Edition)
 - No Unity Catalog  
 - No external locations  
 - No storage credentials  
 - Workspace-level only  
-- Terraform adjusted to CE limitations  
+- Terraform modules adapted to CE limitations  
 
-## Jenkins CI/CD (IN PROGRESS)
+---
 
-### Completed
+## 🛠 Jenkins CI/CD Pipeline (WIP)
+
+### ✔ Completed
 - Jenkins container builds and runs  
 - Docker CLI installed  
 - Git checkout issues fixed  
 - Terraform will run natively  
 
-### Missing
+### ❌ Still Missing
 - Jenkinsfile finalization  
-- Pipeline steps: init, validate, plan, manual apply  
+- Pipeline steps: init / validate / plan / manual apply  
 - Credentials binding  
-- OIDC integration  
-- End-to-end testing  
+- GitHub OIDC  
+- Full end-to-end automation  
 
-### Jenkins Dockerfile
+---
+
+## 🐳 Jenkins Dockerfile
 FROM jenkins/jenkins:lts-jdk17  
 USER root  
 RUN apt-get update && apt-get install -y docker-cli && rm -rf /var/lib/apt/lists/*  
 USER jenkins
 
-## Setup
+---
+
+## ▶️ Setup
 
 ### 1. Backend (bootstrap)
 cd terraform-bootstrap  
 terraform init  
 terraform apply  
 
-### 2. Main Infrastructure
+### 2. Main infrastructure
 cd terraform  
 terraform init  
 terraform validate  
 terraform plan  
 terraform apply  
 
-### 3. Jenkins (in progress)
+### 3. Jenkins (WIP)
 cd jenkins  
 docker compose up -d  
 
-## Roadmap
-- Complete Jenkins pipeline  
-- Add GitHub OIDC  
+---
+
+## 🗺 Roadmap
+- Finish Jenkins pipeline  
+- Add GitHub OIDC integration  
 - Run Jenkins on EC2  
 - Automate Databricks workspace jobs  
 - Add Glue crawler schedules  

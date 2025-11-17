@@ -1,7 +1,7 @@
 {
   "version": 4,
   "terraform_version": "1.13.1",
-  "serial": 50,
+  "serial": 29,
   "lineage": "13d1c4f6-d4f8-1754-1084-76945e8742ae",
   "outputs": {},
   "resources": [
@@ -92,7 +92,7 @@
             "timeouts": null,
             "versioning": [
               {
-                "enabled": true,
+                "enabled": false,
                 "mfa_delete": false
               }
             ],

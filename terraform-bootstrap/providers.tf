@@ -8,7 +8,7 @@ terraform {
     }
   }
 
-  backend "local" {}  # bootstrap mindig lokál backenddel fut
+  
 }
 
 provider "aws" {

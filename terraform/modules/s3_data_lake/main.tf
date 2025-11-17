@@ -194,18 +194,7 @@ resource "aws_s3_bucket_policy" "bronze" {
         Resource  = [aws_s3_bucket.bronze.arn, "${aws_s3_bucket.bronze.arn}/*"],
         Condition = { Bool = { "aws:SecureTransport" = "false" } }
       },
-      {
-        Sid       = "DenyUnEncryptedObjectUploads",
-        Effect    = "Deny",
-        Principal = "*",
-        Action    = "s3:PutObject",
-        Resource  = "${aws_s3_bucket.bronze.arn}/*",
-        Condition = {
-          StringNotEquals = {
-            "s3:x-amz-server-side-encryption" = (local.use_kms ? "aws:kms" : "AES256")
-          }
-        }
-      }
+     
     ]
   })
 }
@@ -213,26 +202,19 @@ resource "aws_s3_bucket_policy" "bronze" {
 resource "aws_s3_bucket_policy" "silver" {
   bucket = aws_s3_bucket.silver.id
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17"
     Statement = [
       {
-        Sid       = "DenyInsecureTransport",
-        Effect    = "Deny",
-        Principal = "*",
-        Action    = "s3:*",
-        Resource  = [aws_s3_bucket.silver.arn, "${aws_s3_bucket.silver.arn}/*"],
-        Condition = { Bool = { "aws:SecureTransport" = "false" } }
-      },
-      {
-        Sid       = "DenyUnEncryptedObjectUploads",
-        Effect    = "Deny",
-        Principal = "*",
-        Action    = "s3:PutObject",
-        Resource  = "${aws_s3_bucket.silver.arn}/*",
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = [
+          "arn:aws:s3:::${aws_s3_bucket.silver.bucket}",
+          "arn:aws:s3:::${aws_s3_bucket.silver.bucket}/*"
+        ]
         Condition = {
-          StringNotEquals = {
-            "s3:x-amz-server-side-encryption" = (local.use_kms ? "aws:kms" : "AES256")
-          }
+          Bool = { "aws:SecureTransport" = "false" }
         }
       }
     ]
@@ -242,26 +224,19 @@ resource "aws_s3_bucket_policy" "silver" {
 resource "aws_s3_bucket_policy" "gold" {
   bucket = aws_s3_bucket.gold.id
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17"
     Statement = [
       {
-        Sid       = "DenyInsecureTransport",
-        Effect    = "Deny",
-        Principal = "*",
-        Action    = "s3:*",
-        Resource  = [aws_s3_bucket.gold.arn, "${aws_s3_bucket.gold.arn}/*"],
-        Condition = { Bool = { "aws:SecureTransport" = "false" } }
-      },
-      {
-        Sid       = "DenyUnEncryptedObjectUploads",
-        Effect    = "Deny",
-        Principal = "*",
-        Action    = "s3:PutObject",
-        Resource  = "${aws_s3_bucket.gold.arn}/*",
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = [
+          "arn:aws:s3:::${aws_s3_bucket.gold.bucket}",
+          "arn:aws:s3:::${aws_s3_bucket.gold.bucket}/*"
+        ]
         Condition = {
-          StringNotEquals = {
-            "s3:x-amz-server-side-encryption" = (local.use_kms ? "aws:kms" : "AES256")
-          }
+          Bool = { "aws:SecureTransport" = "false" }
         }
       }
     ]

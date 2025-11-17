@@ -4,3 +4,6 @@ variable "region" { type = string }
 variable "force_destroy" { type = bool }
 variable "kms_key_arn" { type = string } # üres = AES256
 variable "tags" { type = map(string) }
+variable "bucket_name" {
+  description = "The name of the S3 bucket"
+}

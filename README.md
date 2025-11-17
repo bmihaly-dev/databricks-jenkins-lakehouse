@@ -1,152 +1,112 @@
 # Databricks–Jenkins Lakehouse Project
-End-to-end AWS Lakehouse infrastructure with modular Terraform and a Jenkins-based CI/CD pipeline (Jenkins setup currently in progress).
+AWS-alapú Lakehouse infrastruktúra modulos Terraformmal.  
+A Databricks rész teljesen kész; a Jenkins CI/CD pipeline jelenleg fejlesztés alatt áll.
 
 ## Overview
-This project builds a complete AWS-based Lakehouse architecture using Terraform modules, including S3 (bronze/silver/gold), Glue Catalog, IAM roles, and a developing Jenkins pipeline for automated Terraform plan/apply.  
-The Jenkins CI/CD component is **not yet finished**, but the infrastructure modules are fully functional and deployable.
+Ez a projekt egy AWS-re épülő Lakehouse architektúrát valósít meg Terraformmal.  
+Az infrastruktúra tartalmaz S3 (bronze/silver/gold) rétegeket, AWS Glue Catalogot, IAM szerepköröket és egy épülő Jenkins pipeline-t Terraform automatizáláshoz.
 
 ## Architecture
-
-AWS S3 (bronze/silver/gold)
-↑
-│ Data ingestion / Delta (optional future)
-│
-AWS Glue Catalog + Crawlers
-↑
-│ IAM roles for controlled access
-│
+Terraform → S3 backend → DynamoDB lock
+        ↓
+AWS S3 (bronze / silver / gold)
+        ↓
+AWS Glue Databases + Crawlers
+        ↓
+IAM Roles (Glue, Databricks workspace)
+        ↓
 Databricks Workspace (Community Edition)
-↑
-│ Workspace-level management only
-│
-Terraform (modules)
-↑
-│ CI/CD on Jenkins (setup in progress)
-│
-S3 backend + DynamoDB lock (bootstrap stack)
+        ↓
+Jenkins CI/CD Pipeline (IN PROGRESS)
 
 ## Repository Structure
-
 databricks-jenkins-lakehouse/
-├── terraform-bootstrap/
-│ ├── main.tf
-│ ├── backend.tf
-│ └── terraform.tfvars
-├── terraform/
-│ ├── main.tf
-│ ├── variables.tf
-│ ├── outputs.tf
-│ └── modules/
-│ ├── s3_data_lake/
-│ ├── iam_glue/
-│ ├── iam_databricks/
-│ └── glue_catalog/
-├── jenkins/
-│ ├── Dockerfile ← Jenkins environment (NOT FULLY DONE)
-│ └── docker-compose.yml ← Jenkins container (NOT FULLY DONE)
-└── README.md
+ ├── terraform-bootstrap/
+ │   ├── main.tf
+ │   ├── backend.tf
+ │   └── terraform.tfvars
+ ├── terraform/
+ │   ├── main.tf
+ │   ├── variables.tf
+ │   ├── outputs.tf
+ │   └── modules/
+ │       ├── s3_data_lake/
+ │       ├── iam_glue/
+ │       ├── iam_databricks/
+ │       └── glue_catalog/
+ ├── jenkins/
+ │   ├── Dockerfile
+ │   └── docker-compose.yml
+ └── README.md
 
-## Components
+## AWS Components
 
-### **1. AWS S3 Data Lake**
-- bronze / silver / gold buckets  
-- default SSE encryption  
-- explicit DENY rules removed (Databricks CE limitation)  
-- lifecycle rules optional
+### S3 Data Lake
+- bronze / silver / gold bucketek  
+- alapértelmezett SSE titkosítás  
+- explicit DENY szabályok eltávolítva (Databricks CE limitációk miatt)
 
-### **2. AWS Glue Catalog**
-- databases + crawlers for each layer  
-- crawler IAM role: `lakehouse-dev-glue-crawler-role-access`  
-- Terraform-managed, reproducible design
+### Glue Catalog
+- külön adatbázis mindhárom réteghez  
+- crawler minden buckethez  
+- IAM szerepkör: lakehouse-dev-glue-crawler-role-access
 
-### **3. IAM Roles**
+### IAM Roles
 - Glue crawler role  
-- Databricks data access role  
-- raw JSON assume-role policies  
-- least privilege enforced
+- Databricks workspace role (CE-kompatibilis)  
+- raw JSON assume-role policy  
+- least privilege jogosultságok
 
-### **4. Databricks Workspace**
-- Community Edition  
-- No Unity Catalog  
-- No storage credentials  
-- No external locations  
-- Only workspace-level provisioning supported
+## Databricks (Community Edition)
+- nincs Unity Catalog  
+- nincs external location  
+- nincs storage credential  
+- csak workspace-szintű erőforrások támogatottak  
+- Terraform modulok mindezt figyelembe veszik
 
-### **5. Jenkins CI/CD (IN PROGRESS)**
-Jenkins is **being built but not yet complete**.
+## Jenkins CI/CD (IN PROGRESS)
 
-Current status:
-- Jenkins container builds successfully  
-- Docker CLI added for future Terraform execution  
-- Git checkout issues fixed (safe.directory, permissions)  
-- Terraform will run **natively** inside Jenkins (not dockerized Terraform)
+### Már kész:
+- Jenkins konténer indul  
+- Dockerfile Terraform-képes környezettel  
+- Docker CLI telepítve  
+- Git checkout hibák javítva  
+- Terraform NEM dockerizált, hanem natívan fog futni
 
-Pending tasks:
-- Configure pipeline stages (Init/Plan/Validate/Manual Apply)  
-- Add credential binding  
-- Add GitHub SSH key / token  
-- Finalize Jenkinsfile  
-- Test pipeline end-to-end  
+### Még hiányzik:
+- Jenkinsfile véglegesítése  
+- pipeline lépések: init, validate, plan, manual apply  
+- credentials binding  
+- pipeline tesztelése  
+- OIDC integráció (később)
 
-## Terraform State Management
-
-### **1. Backend (terraform-bootstrap)**
-- S3 bucket for remote state  
-- DynamoDB table for locking  
-- Fully isolated stack  
-- Must be deployed before any other module  
-
-### **2. Main Infrastructure**
-- Uses the backend from bootstrap  
-- No local state  
-- Idempotent module execution  
-
-## Security
-- Least privilege IAM  
-- S3 bucket encryption  
-- No hardcoded credentials  
-- Jenkins will use secure authentication (OIDC planned)  
-- No Unity Catalog (unsupported in CE)
+### Jenkins Dockerfile
+FROM jenkins/jenkins:lts-jdk17
+USER root
+RUN apt-get update && apt-get install -y docker-cli && rm -rf /var/lib/apt/lists/*
+USER jenkins
 
 ## Setup
 
-### **1. Bootstrap (backend)**
-
+### 1. Backend (bootstrap)
 cd terraform-bootstrap
 terraform init
 terraform apply
 
-### **2. Main Infrastructure**
-
+### 2. Main Infrastructure
 cd terraform
 terraform init
 terraform validate
 terraform plan
 terraform apply
 
-### **3. Jenkins (in progress)**
-
-## Limitations (Databricks CE)
-- No Unity Catalog  
-- No external locations  
-- No storage credentials  
-- No S3 write via IAM roles  
-- Only workspace-level resources supported  
-→ Terraform modules already updated accordingly.
+### 3. Jenkins (IN PROGRESS)
+cd jenkins
+docker compose up -d
 
 ## Roadmap
-- Finish Jenkins pipeline configuration (**next priority**)  
-- Add GitHub OIDC for Terraform Apply  
-- Add EC2 Jenkins runner (production-ready)  
-- Add Databricks Jobs (workspace-level)  
-- Add Glue scheduled crawlers  
-- Add Delta Live Tables (optional)
-
-## Status Summary
-- Terraform modules: **DONE**  
-- Backend bootstrap: **DONE**  
-- S3/Glue/IAM infra: **DONE**  
-- Databricks CE adaptations: **DONE**  
-- Jenkins container: **PARTIALLY DONE**  
-- Jenkins pipeline: **NOT FULLY COMPLETE**  
-- OIDC: **NOT STARTED**  
+- Jenkins pipeline befejezése  
+- GitHub OIDC integráció  
+- EC2-alapú Jenkins futtatás  
+- Databricks workspace resource automation  
+- Glue crawler schedule-ek  
